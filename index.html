@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio WebSocket Client</title>
+    <style>
+        #audioQueue {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Audio WebSocket Client</h1>
+    <input type="text" id="urlInput" placeholder="Введите URL аудиотрека" />
+    <button id="sendUrlButton">Отправить URL</button>
+    <audio id="audioPlayer" controls></audio>
+    <div id="timestamps"></div>
+    <button id="syncButton">Синхронизировать время</button>
+
+    <button id="nextButton">Следующая композиция</button>
+    <div id="audioQueue">
+        <h2>Очередь:</h2>
+        <div id="queueList"></div>
+    </div>
+
+    <script>
+        const audioPlayer = document.getElementById('audioPlayer');
+        const timestampsDiv = document.getElementById('timestamps');
+        const syncButton = document.getElementById('syncButton');
+        const nextButton = document.getElementById('nextButton');
+        const urlInput = document.getElementById('urlInput');
+        const sendUrlButton = document.getElementById('sendUrlButton');
+        const queueList = document.getElementById('queueList');
+        const ws = new WebSocket('ws://localhost:9002'); // Убедитесь, что адрес соответствует вашему серверу
+
+        ws.onopen = function() {
+            console.log('Connected to the server');
+        };
+
+        ws.onmessage = function(event) {
+            if (event.data.startsWith('http')) {
+                // Получаем ссылку на аудиотрек
+                audioPlayer.src = event.data;
+                audioPlayer.play();
+            } else if (event.data.includes('\n')) {
+                // Обрабатываем список очереди
+                const queueItems = event.data.split('\n');
+                queueList.innerHTML = ''; // Очищаем текущий список
+                queueItems.forEach(item => {
+                    if (item) { // Проверяем, что строка не пустая
+                        queueList.innerHTML += `<p>${item}</p>`;
+                    }
+                });
+            } else {
+                // Получаем временные метки
+                const timestamp = parseFloat(event.data);
+                timestampsDiv.innerHTML += `<p>Timestamp: ${timestamp} seconds</p>`;
+                audioPlayer.currentTime = timestamp;
+            }
+        };
+
+        ws.onclose = function() {
+            console.log('Disconnected from the server');
+        };
+
+        ws.onerror = function(error) {
+            console.error('WebSocket error:', error);
+        };
+
+        // Отправка сообщения на сервер при нажатии кнопки воспроизведения
+        audioPlayer.addEventListener('play', function() {
+            ws.send('play');
+        });
+
+        // Отправка сообщения на сервер для синхронизации времени
+        syncButton.addEventListener('click', function() {
+            ws.send('sync');
+        });
+
+        nextButton.addEventListener('click', function() {
+            ws.send('next');
+        });
+
+        // Отправка URL на сервер при нажатии кнопки
+        sendUrlButton.addEventListener('click', function() {
+            const url = urlInput.value;
+            if (url) {
+                ws.send(url);
+                console.log('Отправлено URL:', url);
+            } else {
+                console.log('Введите URL перед отправкой');
+            }
+        });
+
+        // Отправка сообщения на сервер при завершении композиции
+        audioPlayer.addEventListener('ended', function() {
+            ws.send('next'); // Отправляем сообщение о завершении
+            console.log('Композиция завершена');
+        });
+    </script>
+</body>
+</html>
