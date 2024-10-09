@@ -97,13 +97,6 @@ void WebSocketServer::broadcast_url(const std::string& url) {
     if (!is_playing) {
         broadcast_queue();
     }
-    
-    // audio_url = jf["url"];
-    // audio_duration = jf["duration"];
-    // std::cout << jf << std::endl;
-    // for (auto client : m_clients) {
-    //     m_server.send(client, audio_url, websocketpp::frame::opcode::text);
-    // }
 }
 
 void WebSocketServer::broadcast_queue() {
@@ -124,9 +117,6 @@ void WebSocketServer::broadcast_queue() {
 }
 
 void WebSocketServer::broadcast_list() {
-    if (m_audioOrder.isEmpty()) {
-        return;
-    }
     std::string list = m_audioOrder.getList();
     for (auto client : m_clients) {
         m_server.send(client, list, websocketpp::frame::opcode::text);
