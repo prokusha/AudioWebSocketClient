@@ -4,8 +4,6 @@
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 #include <nlohmann/json.hpp>
-#include <fstream>
-#include <thread>
 #include <set>
 
 typedef websocketpp::server<websocketpp::config::asio> server;
@@ -27,6 +25,7 @@ public:
     void run();
 
 private:
+    // TODO: Разделить все это месиво 
     server m_server;
     AudioOrder m_audioOrder;
     std::set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> m_clients;
@@ -38,7 +37,7 @@ private:
 
     void broadcast_time(double time);
 
-    void broadcast_time_new_connect(websocketpp::connection_hdl hdl, double time);
+    void broadcast_time(websocketpp::connection_hdl hdl, double time);
 
     void on_open(websocketpp::connection_hdl hdl);
 
@@ -53,4 +52,6 @@ private:
     void broadcast_queue();
     
     void broadcast_list();
+
+    void broadcast_list(websocketpp::connection_hdl hdl);
 };
