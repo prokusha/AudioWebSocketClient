@@ -1,4 +1,4 @@
-#include "server.h"
+#include "webSocketServer.h"
 
 int main() {
     WebSocketServer server;
