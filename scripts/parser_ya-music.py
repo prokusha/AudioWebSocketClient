@@ -1,9 +1,13 @@
+import os
 from yandex_music import Client
+from dotenv import load_dotenv
 import json
 import argparse
 
+load_dotenv()
+
 def get_audio_info(url):
-    client = Client().init()
+    client = Client(os.getenv('TOKEN_YA_M')).init()
 
     parts = url.split('/')
     album_id = parts[-3]
