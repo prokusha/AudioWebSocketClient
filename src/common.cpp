@@ -1,6 +1,8 @@
 #include "common.h"
 
+#include <regex>
 #include <fstream>
+#include <iostream>
 
 void runPythonScript(const std::string& scriptPath, const std::string& args) {
     // Формируем команду для запуска Python-скрипта

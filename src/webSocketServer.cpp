@@ -11,7 +11,6 @@ void WebSocketServer::on_open(websocketpp::connection_hdl hdl) {
     if (m_audioManager.isPlaying()) {
         m_clientManager.broadcast(hdl, {
             m_audioManager.getCurrentAudio(), 
-            std::to_string(m_audioManager.getCurrentTime()),
             m_audioManager.getList()
         }, m_server);
     }

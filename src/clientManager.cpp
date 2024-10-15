@@ -1,4 +1,5 @@
 #include "clientManager.h"
+
 #include <websocketpp/frame.hpp>
 
 void ClientManager::addClient(websocketpp::connection_hdl hdl) {
