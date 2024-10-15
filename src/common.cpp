@@ -1,8 +1,11 @@
 #include "common.h"
 
+#include <chrono>
 #include <regex>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <thread>
 
 void runPythonScript(const std::string& scriptPath, const std::string& args) {
     // Формируем команду для запуска Python-скрипта
@@ -29,6 +32,10 @@ bool isYandexMusicLink(const std::string& url) {
 }
 
 json getAudioInfo(const std::string& payload) {
+    std::string fileName = "data.json";
+    
+    removeFile(fileName);
+
     std::string filePath = "scripts/";
     if (isYouTubeLink(payload)) {
         filePath += "parser_yt-dlp.py";
@@ -38,10 +45,15 @@ json getAudioInfo(const std::string& payload) {
         std::cout << "Тип ссылки не поддерживается" << std::endl;
         return {};
     }
+    
     std::cout << "Запускаем: " << filePath << std::endl;
     runPythonScript(filePath, "--url " + payload);
 
-    std::ifstream ifs("data.json");
+    if (!waitFile(fileName)) {
+        return {};
+    }
+
+    std::ifstream ifs(fileName);
     json jf;
     try {
         jf = json::parse(ifs);
@@ -50,7 +62,28 @@ json getAudioInfo(const std::string& payload) {
         return {};
     }
     ifs.close();
-    std::remove("data.json");
+    removeFile(fileName);
 
     return jf;
+}
+
+bool fileExist(const std::string &fileName) {
+    std::ifstream file(fileName);
+    return file.good();
+}
+
+void removeFile(const std::string& fileName) {
+    if (fileExist(fileName)) {
+        std::remove(fileName.c_str());
+    }
+}
+
+bool waitFile(const std::string& fileName) {
+    bool exist = fileExist(fileName);
+
+    for (int sec = 0; sec < 10 && !exist; sec++, exist = fileExist(fileName)) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+
+    return exist;
 }

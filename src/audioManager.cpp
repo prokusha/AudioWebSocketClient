@@ -19,6 +19,7 @@ void AudioManager::play() {
 
 void AudioManager::stop() {
     pthread_cancel(count_thread);
+    current_audio = nullptr;
     is_playing = false;
 }
 

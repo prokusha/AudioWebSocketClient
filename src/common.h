@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <unordered_map>
 #include <nlohmann/json.hpp>
 
@@ -23,3 +24,9 @@ bool isYouTubeLink(const std::string& url);
 bool isYandexMusicLink(const std::string& url);
 
 json getAudioInfo(const std::string& payload);
+
+bool fileExist(const std::string& fileName);
+
+void removeFile(const std::string& fileName);
+
+bool waitFile(const std::string& fileName);
