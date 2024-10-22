@@ -65,9 +65,9 @@ std::string AudioManager::getList() {
 void AudioManager::updateTime() {
     while (start_time < audio_duration) {
         std::this_thread::sleep_for(
-            std::chrono::milliseconds(1000)
+            std::chrono::milliseconds(300)
         );
-        start_time += 1.0;
+        start_time += 0.3;
     }
 
     stop();
