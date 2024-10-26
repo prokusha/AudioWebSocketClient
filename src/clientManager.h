@@ -18,4 +18,6 @@ public:
 
 private:
     std::set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> m_clients;
+
+    void sendMessage(websocketpp::connection_hdl hdl, const std::string& message, server& m_server);
 };
