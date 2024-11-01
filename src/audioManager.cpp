@@ -47,18 +47,21 @@ bool AudioManager::isPlaying() const {
     return is_playing;
 }
 
-double AudioManager::getCurrentTime() const {
-    return start_time;
+json AudioManager::getCurrentTime() const {
+    return {{"type", "timestamp"}, {"timestamp", start_time}};
 }
 
-std::string AudioManager::getCurrentAudio() const {
-    if (current_audio.empty()) {
-        return "";
+json AudioManager::getCurrentAudio() const {
+    json js;
+    js["type"] = "play";
+    js["url"] = "";
+    if (!current_audio.empty()) {
+        js["url"] = current_audio["url"];
     }
-    return current_audio["url"];
+    return js;
 }
 
-std::string AudioManager::getList() {
+json AudioManager::getList() {
     return m_audioOrder.getList();
 }
 

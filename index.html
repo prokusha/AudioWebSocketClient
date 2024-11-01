@@ -41,26 +41,42 @@
         };
 
         ws.onmessage = function(event) {
-            if (event.data.startsWith('http')) {
-                // Получаем ссылку на аудиотрек
-                audioPlayer.src = event.data;
-                audioPlayer.play();
-            } else if (event.data.includes('\n')) {
-                // Обрабатываем список очереди
-                const queueItems = event.data.split('\n');
-                queueList.innerHTML = ''; // Очищаем текущий список
-                queueItems.forEach(item => {
-                    if (item) { // Проверяем, что строка не пустая
-                        queueList.innerHTML += `<p>${item}</p>`;
-                    }
-                });
-            } else {
-                // Получаем временные метки
-                const timestamp = parseFloat(event.data);
-                timestampsDiv.innerHTML += `<p>Timestamp: ${timestamp} seconds</p>`;
-                audioPlayer.currentTime = timestamp;
+            try {
+                const data = JSON.parse(event.data);
+                switch (data.type) {
+                    case 'play':
+                        // Получаем ссылку на аудиотрек
+                        audioPlayer.src = data.url;
+                        audioPlayer.play();
+                        break;
+
+                    case 'queue':
+                        // Обрабатываем список очереди
+                        const queueItems = data.items;
+                        queueList.innerHTML = ''; // Очищаем текущий список
+                        queueItems.forEach(item => {
+                            if (item) { // Проверяем, что элемент не пустой
+                                queueList.innerHTML += `<p>${item.author} -  ${item.title}</p>`;
+                            }
+                        });
+                        break;
+
+                    case 'timestamp':
+                        // Получаем временные метки
+                        const timestamp = parseFloat(data.timestamp);
+                        timestampsDiv.innerHTML += `<p>Timestamp: ${timestamp} seconds</p>`;
+                        audioPlayer.currentTime = timestamp;
+                        break;
+
+                    default:
+                        console.warn('Неизвестный тип сообщения:', data.type);
+                        break;
+                }
+            } catch (error) {
+                console.error('Ошибка при обработке сообщения:', error);
             }
         };
+
 
         ws.onclose = function() {
             console.log('Disconnected from the server');
@@ -70,25 +86,30 @@
             console.error('WebSocket error:', error);
         };
 
-        // Отправка сообщения на сервер при нажатии кнопки воспроизведения
+        // Функция для формирования JSON-сообщения
+        function sendMessage(type, data = {}) {
+            const message = { type: type, ...data };
+            ws.send(JSON.stringify(message));
+        }
+
         audioPlayer.addEventListener('play', function() {
-            ws.send('play');
+            sendMessage('play');
         });
 
         // Отправка сообщения на сервер для синхронизации времени
         syncButton.addEventListener('click', function() {
-            ws.send('sync');
+            sendMessage('sync');
         });
 
         nextButton.addEventListener('click', function() {
-            ws.send('next');
+            sendMessage('next');
         });
 
         // Отправка URL на сервер при нажатии кнопки
         sendUrlButton.addEventListener('click', function() {
             const url = urlInput.value;
             if (url) {
-                ws.send(url);
+                sendMessage('url', { url: url });
                 console.log('Отправлено URL:', url);
             } else {
                 console.log('Введите URL перед отправкой');
@@ -97,7 +118,7 @@
 
         // Отправка сообщения на сервер при завершении композиции
         audioPlayer.addEventListener('ended', function() {
-            ws.send('next'); // Отправляем сообщение о завершении
+            sendMessage('next'); // Отправляем сообщение о завершении
             console.log('Композиция завершена');
         });
     </script>

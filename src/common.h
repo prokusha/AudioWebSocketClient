@@ -9,13 +9,15 @@ using json = nlohmann::json;
 enum class payloadSignal {
     PLAY,
     SYNC,
-    NEXT
+    NEXT,
+    URL
 };
 
 std::unordered_map<std::string, payloadSignal> const tableSignals = { 
     {"play", payloadSignal::PLAY}, 
     {"sync", payloadSignal::SYNC}, 
-    {"next", payloadSignal::NEXT} };
+    {"next", payloadSignal::NEXT},
+    {"url", payloadSignal::URL} };
 
 void runPythonScript(const std::string& scriptPath, const std::string& args);
 

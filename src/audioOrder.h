@@ -7,14 +7,17 @@ using json = nlohmann::json;
 
 class AudioOrder {
 public:
-    void addAudio(nlohmann::json audioInfo);
+    AudioOrder() {
+        list["type"] = "queue";
+    }
+    void addAudio(json audioInfo);
     bool isEmpty();
     json getNext();
-    std::string getList();
+    json getList();
 
 private:
     std::deque<json> m_audioOrder;
     
-    std::string list = "\n";
+    json list;
     bool list_need_update = false;
 };

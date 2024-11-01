@@ -13,9 +13,9 @@ public:
     void addAudio(json audio_info);
     bool playNext();
     bool isPlaying() const;
-    double getCurrentTime() const;
-    std::string getCurrentAudio() const;
-    std::string getList();
+    json getCurrentTime() const;
+    json getCurrentAudio() const;
+    json getList();
 
 private:
     AudioOrder m_audioOrder;

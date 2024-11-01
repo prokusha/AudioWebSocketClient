@@ -16,14 +16,18 @@ json AudioOrder::getNext() {
     return tmp;
 }
 
-std::string AudioOrder::getList() {
+json AudioOrder::getList() {
     if (list_need_update) {
-        list = "\n";
+        if (list["items"] != nullptr)
+        {
+            list["items"].clear();
+        }
         for (json& jf : m_audioOrder) {
-            list += jf["author"];
-            list += " - ";
-            list += jf["title"];
-            list += '\n';
+            list["items"] +=
+            {
+                {"author", jf["author"]},
+                {"title", jf["title"]}
+            };
         }
         list_need_update = false;
     }
