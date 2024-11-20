@@ -40,6 +40,16 @@ void WebSocketServer::on_message(websocketpp::connection_hdl hdl, server::messag
                     }, m_server);
                 }
                 break;
+            case payloadSignal::ENDED:
+                if (!m_audioManager.isPlaying()) {
+                    if (m_audioManager.playNext()) {
+                        m_clientManager.broadcast(json{
+                            m_audioManager.getCurrentAudio(), 
+                            m_audioManager.getList()
+                        }, m_server);
+                    }
+                }
+                break;
             case payloadSignal::URL:
                 std::thread([url = jsparse["url"], this]() {
                     handleUrl(url, m_audioManager, m_clientManager, m_server);

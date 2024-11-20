@@ -13,6 +13,7 @@ enum class payloadSignal {
     PLAY,
     SYNC,
     NEXT,
+    ENDED,
     URL
 };
 
@@ -20,6 +21,7 @@ std::unordered_map<std::string, payloadSignal> const tableSignals = {
     {"play", payloadSignal::PLAY}, 
     {"sync", payloadSignal::SYNC}, 
     {"next", payloadSignal::NEXT},
+    {"ended", payloadSignal::ENDED},
     {"url", payloadSignal::URL} };
 
 void runPythonScript(const std::string& scriptPath, const std::string& args);
