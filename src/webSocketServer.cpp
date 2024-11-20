@@ -9,7 +9,7 @@ void WebSocketServer::run() {
 void WebSocketServer::on_open(websocketpp::connection_hdl hdl) {
     m_clientManager.addClient(hdl);
     if (m_audioManager.isPlaying()) {
-        m_clientManager.broadcast(hdl, std::vector<json>{
+        m_clientManager.broadcast(hdl, json{
             m_audioManager.getCurrentAudio(), 
             m_audioManager.getList()
         }, m_server);
@@ -34,26 +34,16 @@ void WebSocketServer::on_message(websocketpp::connection_hdl hdl, server::messag
                 break;
             case payloadSignal::NEXT:
                 if (m_audioManager.playNext()) {
-                    m_clientManager.broadcast(std::vector<json>{
+                    m_clientManager.broadcast(json{
                         m_audioManager.getCurrentAudio(), 
                         m_audioManager.getList()
                     }, m_server);
                 }
                 break;
             case payloadSignal::URL:
-                json audio_info = getAudioInfo(jsparse["url"]);
-                if (audio_info.empty()) {
-                    return;
-                }
-                m_audioManager.addAudio(audio_info);
-                if (!m_audioManager.isPlaying()) {
-                    m_clientManager.broadcast(std::vector<json>{
-                        m_audioManager.getCurrentAudio(), 
-                        m_audioManager.getList()
-                    }, m_server);
-                } else {
-                    m_clientManager.broadcast(m_audioManager.getList(), m_server);
-                }
+                std::thread([url = jsparse["url"], this]() {
+                    handleUrl(url, m_audioManager, m_clientManager, m_server);
+                }).detach();
                 break;
         }
     }

@@ -31,15 +31,29 @@ bool isYandexMusicLink(const std::string& url) {
     return std::regex_match(url, yandexMusicRegex);
 }
 
+void handleUrl(const std::string& url, AudioManager& audioManager, ClientManager& clientManager, server& server) {
+    json audio_info = getAudioInfo(url);
+    if (audio_info.empty()) {
+        return;
+    }
+    audioManager.addAudio(audio_info);
+    if (!audioManager.isPlaying()) {
+        clientManager.broadcast(json{
+            audioManager.getCurrentAudio(), 
+            audioManager.getList()
+        }, server);
+    } else {
+        clientManager.broadcast(audioManager.getList(), server);
+    }
+}
+
 json getAudioInfo(const std::string& payload) {
     std::string fileName = "data.json";
     
     removeFile(fileName);
 
     std::string filePath = "scripts/";
-    if (isYouTubeLink(payload)) {
-        filePath += "parser_yt-dlp.py";
-    } else if (isYandexMusicLink(payload)) {
+    if (isYandexMusicLink(payload)) {
         filePath += "parser_ya-music.py";
     } else {
         std::cout << "Тип ссылки не поддерживается" << std::endl;

@@ -4,6 +4,9 @@
 #include <unordered_map>
 #include <nlohmann/json.hpp>
 
+#include "audioManager.h"
+#include "clientManager.h"
+
 using json = nlohmann::json;
 
 enum class payloadSignal {
@@ -24,6 +27,8 @@ void runPythonScript(const std::string& scriptPath, const std::string& args);
 bool isYouTubeLink(const std::string& url);
 
 bool isYandexMusicLink(const std::string& url);
+
+void handleUrl(const std::string& url, AudioManager& audioManager, ClientManager& clientManager, server& server);
 
 json getAudioInfo(const std::string& payload);
 

@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(AudioWebSocketClient)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(Boost REQUIRED COMPONENTS system filesystem)
 

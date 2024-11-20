@@ -1,8 +1,5 @@
 #include "clientManager.h"
 
-#include <websocketpp/common/system_error.hpp>
-#include <websocketpp/frame.hpp>
-
 void ClientManager::addClient(websocketpp::connection_hdl hdl) {
     m_clients.insert(hdl);
 }
@@ -15,22 +12,11 @@ void ClientManager::broadcast(websocketpp::connection_hdl hdl, const json& messa
     sendMessage(hdl, message, m_server);
 }
 
-void ClientManager::broadcast(websocketpp::connection_hdl hdl, const std::vector<json>& messages, server& m_server) {
-    for (const json& message : messages) {
-        sendMessage(hdl, message, m_server);
-    }
-}
-
 void ClientManager::broadcast(const json& message, server& m_server) {
-    for (auto client : m_clients) {
-        sendMessage(client, message, m_server);
-    }
-}
-
-void ClientManager::broadcast(const std::vector<json>& messages, server& m_server) {
-    for (auto client : m_clients) {
-        broadcast(client, messages, m_server);
-    }
+    std::for_each(std::execution::par, m_clients.begin(), m_clients.end(), 
+    [this, &message, &m_server](auto& hdl){
+        sendMessage(hdl, message, m_server);
+    });
 }
 
 void ClientManager::sendMessage(websocketpp::connection_hdl hdl, const json& message, server& m_server) {
