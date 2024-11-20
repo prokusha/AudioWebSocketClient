@@ -13,6 +13,7 @@ public:
     void addAudio(json audio_info);
     bool playNext();
     bool isPlaying() const;
+    bool isEnded() const;
     json getCurrentTime() const;
     json getCurrentAudio() const;
     json getList();

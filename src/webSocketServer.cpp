@@ -41,7 +41,7 @@ void WebSocketServer::on_message(websocketpp::connection_hdl hdl, server::messag
                 }
                 break;
             case payloadSignal::ENDED:
-                if (!m_audioManager.isPlaying()) {
+                if (m_audioManager.isEnded()) {
                     if (m_audioManager.playNext()) {
                         m_clientManager.broadcast(json{
                             m_audioManager.getCurrentAudio(), 
