@@ -20,18 +20,19 @@ def get_audio_info(url):
     audio_title = track.title
     audio_author = ", ".join([author.name for author in track.artists])
     audio_duration = track.duration_ms/1000
+    audio_cover = track.cover_uri
 
-    return audio_url, audio_title, audio_author, audio_duration
+    return audio_url, audio_title, audio_author, audio_duration, audio_cover
     
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Пример передачи параметров.")
     parser.add_argument('--url', type=str, help='Ссылка на трек', required=True)
     args = parser.parse_args()
-    url, title, author, duration = get_audio_info(args.url)
-    print(url, title, author, duration)
+    url, title, author, duration, cover = get_audio_info(args.url)
+    print(url, title, author, duration, cover)
 
-    data = {'title': title, 'author': author, 'url': url, 'duration': duration}
+    data = {'title': title, 'author': author, 'url': url, 'duration': duration, 'cover': cover}
 
     with open('data.json', 'w') as file:
         json.dump(data, file)

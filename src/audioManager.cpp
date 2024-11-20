@@ -54,9 +54,15 @@ json AudioManager::getCurrentTime() const {
 json AudioManager::getCurrentAudio() const {
     json js;
     js["type"] = "play";
+    js["title"] = "";
+    js["author"] = "";
     js["url"] = "";
+    js["cover"] = "";
     if (!current_audio.empty()) {
+        js["title"] = current_audio["title"];
+        js["author"] = current_audio["author"];
         js["url"] = current_audio["url"];
+        js["cover"] = current_audio["cover"];
     }
     return js;
 }
