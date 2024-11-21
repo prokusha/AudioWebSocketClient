@@ -48,7 +48,7 @@ bool AudioManager::isPlaying() const {
 }
 
 bool AudioManager::isEnded() const {
-    return start_time - audio_duration <= 1.0f;
+    return audio_duration - start_time <= 1.5f;
 }
 
 json AudioManager::getCurrentTime() const {
