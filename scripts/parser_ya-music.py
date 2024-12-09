@@ -6,8 +6,10 @@ import argparse
 
 load_dotenv()
 
+client = Client(os.getenv('TOKEN_YA_M')).init()
+
 def get_audio_info(url):
-    client = Client(os.getenv('TOKEN_YA_M')).init()
+    
 
     parts = url.split('/')
     album_id = parts[-3]
@@ -16,23 +18,46 @@ def get_audio_info(url):
     result = f"{track_id}:{album_id}"
     track = client.tracks(result)[0]
 
-    audio_url = track.get_specific_download_info('mp3', 192).get_direct_link()
-    audio_title = track.title
-    audio_author = ", ".join([author.name for author in track.artists])
-    audio_duration = track.duration_ms/1000
-    audio_cover = track.cover_uri
-
-    return audio_url, audio_title, audio_author, audio_duration, audio_cover
-    
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Пример передачи параметров.")
-    parser.add_argument('--url', type=str, help='Ссылка на трек', required=True)
-    args = parser.parse_args()
-    url, title, author, duration, cover = get_audio_info(args.url)
-    print(url, title, author, duration, cover)
+    url = track.get_specific_download_info('mp3', 192).get_direct_link()
+    title = track.title
+    author = ", ".join([author.name for author in track.artists])
+    duration = track.duration_ms/1000
+    cover = track.cover_uri
 
     data = {'title': title, 'author': author, 'url': url, 'duration': duration, 'cover': cover}
+
+    return data
+
+
+def send_search_request_and_print_result(query):
+    search_result = client.search(query)
+    results = search_result.tracks.results
+
+    search_results = {
+        i: {
+            'title': result.title,
+            'author': ", ".join(author.name for author in result.artists),
+            'url': result.get_specific_download_info('mp3', 192).get_direct_link(),
+            'cover': result.cover_uri
+        }
+        for i, result in enumerate(results)
+    }
+
+    return search_results
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('query', type=str, help='Ссылка/Поисковый запрос')
+    parser.add_argument('-t', "--type", choices=("url", "search"), help="url - поиск по ссылке, search - поиск по запросу")
+    #Пример команды python parser_ya-music.py -t url https://music.yandex.ru/album/17648600/track/89760037
+
+    args = parser.parse_args()
+
+    if args.type == "url":
+        data = get_audio_info(args.query)
+    elif args.type == "search":
+        data = send_search_request_and_print_result(args.query)
 
     with open('data.json', 'w') as file:
         json.dump(data, file)

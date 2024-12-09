@@ -1,5 +1,7 @@
 #include "webSocketServer.h"
 #include "common.h"
+#include "signalHandler.h"
+#include <thread>
 
 void WebSocketServer::run() {
     std::cout << "Server listening on port 9002" << std::endl;
@@ -26,33 +28,20 @@ void WebSocketServer::on_message(websocketpp::connection_hdl hdl, server::messag
     if (tableSignals.find(jsparse["type"]) != tableSignals.end()) {
         switch (tableSignals.at(jsparse["type"])) {
             case payloadSignal::PLAY:
-                m_audioManager.play();
-                m_clientManager.broadcast(hdl, m_audioManager.getCurrentTime(), m_server);
+                signalPlay(hdl, m_audioManager, m_clientManager, m_server);
                 break;
             case payloadSignal::SYNC:
-                m_clientManager.broadcast(m_audioManager.getCurrentTime(), m_server);
+                signalSync(m_audioManager, m_clientManager, m_server);
                 break;
             case payloadSignal::NEXT:
-                if (m_audioManager.playNext()) {
-                    m_clientManager.broadcast(json{
-                        m_audioManager.getCurrentAudio(), 
-                        m_audioManager.getList()
-                    }, m_server);
-                }
+                signalNext(m_audioManager, m_clientManager, m_server);
                 break;
             case payloadSignal::ENDED:
-                if (m_audioManager.isEnded()) {
-                    if (m_audioManager.playNext()) {
-                        m_clientManager.broadcast(json{
-                            m_audioManager.getCurrentAudio(), 
-                            m_audioManager.getList()
-                        }, m_server);
-                    }
-                }
+                signalEnded(m_audioManager, m_clientManager, m_server);
                 break;
             case payloadSignal::URL:
-                std::thread([url = jsparse["url"], this]() {
-                    handleUrl(url, m_audioManager, m_clientManager, m_server);
+                std::thread([url = jsparse["url"], this](){
+                    signalUrl(url, m_audioManager, m_clientManager, m_server);
                 }).detach();
                 break;
         }

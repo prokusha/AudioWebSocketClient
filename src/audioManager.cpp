@@ -21,6 +21,7 @@ void AudioManager::stop() {
     pthread_cancel(count_thread);
     current_audio = nullptr;
     is_playing = false;
+    audio_duration = 0.0;
 }
 
 void AudioManager::addAudio(json audio_info) {

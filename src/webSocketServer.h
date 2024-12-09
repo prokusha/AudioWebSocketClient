@@ -2,6 +2,7 @@
 
 #include "clientManager.h"
 #include "audioManager.h"
+#include "signalHandler.h"
 
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
@@ -28,6 +29,8 @@ private:
     server m_server;
     ClientManager m_clientManager;
     AudioManager m_audioManager;
+
+    std::unordered_map<payloadSignal, std::function<void(websocketpp::connection_hdl)>> handlers;
 
     void on_open(websocketpp::connection_hdl hdl);
     void on_close(websocketpp::connection_hdl hdl);

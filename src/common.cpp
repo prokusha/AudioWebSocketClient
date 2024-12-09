@@ -31,22 +31,6 @@ bool isYandexMusicLink(const std::string& url) {
     return std::regex_match(url, yandexMusicRegex);
 }
 
-void handleUrl(const std::string& url, AudioManager& audioManager, ClientManager& clientManager, server& server) {
-    json audio_info = getAudioInfo(url);
-    if (audio_info.empty()) {
-        return;
-    }
-    audioManager.addAudio(audio_info);
-    if (!audioManager.isPlaying()) {
-        clientManager.broadcast(json{
-            audioManager.getCurrentAudio(), 
-            audioManager.getList()
-        }, server);
-    } else {
-        clientManager.broadcast(audioManager.getList(), server);
-    }
-}
-
 json getAudioInfo(const std::string& payload) {
     std::string fileName = "data.json";
     
@@ -61,11 +45,7 @@ json getAudioInfo(const std::string& payload) {
     }
     
     std::cout << "Запускаем: " << filePath << std::endl;
-    runPythonScript(filePath, "--url " + payload);
-
-    if (!waitFile(fileName)) {
-        return {};
-    }
+    runPythonScript(filePath, "-t url " + payload);
 
     std::ifstream ifs(fileName);
     json jf;
@@ -75,6 +55,7 @@ json getAudioInfo(const std::string& payload) {
         std::cout << "Ошибка парсинга JSON: " << e.what() << std::endl;
         return {};
     }
+    std::cout << jf << std::endl;
     ifs.close();
     removeFile(fileName);
 
@@ -90,14 +71,4 @@ void removeFile(const std::string& fileName) {
     if (fileExist(fileName)) {
         std::remove(fileName.c_str());
     }
-}
-
-bool waitFile(const std::string& fileName) {
-    bool exist = fileExist(fileName);
-
-    for (int sec = 0; sec < 10 && !exist; sec++, exist = fileExist(fileName)) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
-
-    return exist;
 }
