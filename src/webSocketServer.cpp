@@ -39,11 +39,16 @@ void WebSocketServer::on_message(websocketpp::connection_hdl hdl, server::messag
             case payloadSignal::ENDED:
                 signalEnded(m_audioManager, m_clientManager, m_server);
                 break;
-            case payloadSignal::URL:
-                std::thread([url = jsparse["url"], this](){
-                    signalUrl(url, m_audioManager, m_clientManager, m_server);
+            case payloadSignal::ADD:
+                std::thread([thisId = jsparse["thisId"], text = jsparse["text"], this](){
+                    signalAdd(thisId, text, m_audioManager, m_clientManager, m_server);
                 }).detach();
                 break;
+            case payloadSignal::SEARCH:
+                std::thread([text = jsparse["text"], hdl, this](){
+                    signalSearch(hdl, text, m_clientManager, m_server);
+                }).detach();
+              break;
         }
     }
 }

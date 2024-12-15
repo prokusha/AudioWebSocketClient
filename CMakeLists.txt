@@ -9,11 +9,13 @@ find_package(Boost REQUIRED COMPONENTS system filesystem)
 
 find_package(nlohmann_json REQUIRED)
 
+find_package(CURL REQUIRED)
+
 file(GLOB SOURCES "src/*.cpp")
 
 add_executable(AudioWebSocketClient ${SOURCES})
 
-target_link_libraries(AudioWebSocketClient Boost::system Boost::filesystem nlohmann_json::nlohmann_json)
+target_link_libraries(AudioWebSocketClient Boost::system Boost::filesystem nlohmann_json::nlohmann_json CURL::libcurl)
 
 include_directories(${Boost_INCLUDE_DIRS} src)
 

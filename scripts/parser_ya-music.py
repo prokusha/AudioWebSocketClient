@@ -8,13 +8,7 @@ load_dotenv()
 
 client = Client(os.getenv('TOKEN_YA_M')).init()
 
-def get_audio_info(url):
-    
-
-    parts = url.split('/')
-    album_id = parts[-3]
-    track_id = parts[-1]
-
+def get_audio_id(track_id, album_id):
     result = f"{track_id}:{album_id}"
     track = client.tracks(result)[0]
 
@@ -27,6 +21,13 @@ def get_audio_info(url):
     data = {'title': title, 'author': author, 'url': url, 'duration': duration, 'cover': cover}
 
     return data
+
+def get_audio_url(url):
+    parts = url.split('/')
+    album_id = parts[-3]
+    track_id = parts[-1]
+
+    return get_audio_id(track_id, album_id)
 
 
 def send_search_request_and_print_result(query):
@@ -49,15 +50,18 @@ def send_search_request_and_print_result(query):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('query', type=str, help='Ссылка/Поисковый запрос')
-    parser.add_argument('-t', "--type", choices=("url", "search"), help="url - поиск по ссылке, search - поиск по запросу")
+    parser.add_argument('-t', "--type", choices=("url", "search", "id"), help="url - поиск по ссылке, search - поиск по запросу, id - поиск по id трека и альбома")
     #Пример команды python parser_ya-music.py -t url https://music.yandex.ru/album/17648600/track/89760037
 
     args = parser.parse_args()
 
     if args.type == "url":
-        data = get_audio_info(args.query)
+        data = get_audio_url(args.query)
     elif args.type == "search":
         data = send_search_request_and_print_result(args.query)
+    elif args.type == "id":
+        tr, al = args.query.split(':')
+        data = get_audio_id(tr, al)
 
     with open('data.json', 'w') as file:
         json.dump(data, file)

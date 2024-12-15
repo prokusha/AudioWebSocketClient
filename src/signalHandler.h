@@ -8,7 +8,7 @@ enum class payloadSignal {
     SYNC,
     NEXT,
     ENDED,
-    URL,
+    ADD,
     SEARCH
 };
 
@@ -17,11 +17,12 @@ std::unordered_map<std::string, payloadSignal> const tableSignals = {
     {"sync", payloadSignal::SYNC}, 
     {"next", payloadSignal::NEXT},
     {"ended", payloadSignal::ENDED},
-    {"url", payloadSignal::URL},
+    {"add", payloadSignal::ADD},
     {"search", payloadSignal::SEARCH}};
 
 void signalPlay(websocketpp::connection_hdl hdl, AudioManager& audioManager, ClientManager& clientManager, server& server);
 void signalSync(AudioManager& audioManager, ClientManager& clientManager, server& server);
 void signalNext(AudioManager& audioManager, ClientManager& clientManager, server& server);
 void signalEnded(AudioManager& audioManager, ClientManager& clientManager, server& server);
-void signalUrl(const std::string& url, AudioManager& audioManager, ClientManager& clientManager, server& server);
+void signalAdd(bool thisId, const std::string& text, AudioManager& audioManager, ClientManager& clientManager, server& server);
+void signalSearch(websocketpp::connection_hdl hdl, const std::string& text, ClientManager& clientManager, server& server);

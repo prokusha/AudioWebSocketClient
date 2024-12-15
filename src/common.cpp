@@ -1,4 +1,5 @@
 #include "common.h"
+#include "audioManager.h"
 
 #include <chrono>
 #include <regex>
@@ -31,21 +32,25 @@ bool isYandexMusicLink(const std::string& url) {
     return std::regex_match(url, yandexMusicRegex);
 }
 
-json getAudioInfo(const std::string& payload) {
+json getAudioInfo(bool thisId, const std::string& text) {
     std::string fileName = "data.json";
     
     removeFile(fileName);
 
-    std::string filePath = "scripts/";
-    if (isYandexMusicLink(payload)) {
-        filePath += "parser_ya-music.py";
+    std::string script = "scripts/parser_ya-music.py";
+    std::string args = "";
+
+    if (thisId) {
+        args = "-t id " + text;
+    } else if (isYandexMusicLink(text)) {
+        args = "-t url " + text;
     } else {
         std::cout << "Тип ссылки не поддерживается" << std::endl;
         return {};
     }
     
-    std::cout << "Запускаем: " << filePath << std::endl;
-    runPythonScript(filePath, "-t url " + payload);
+    std::cout << "Запускаем: " << script << std::endl;
+    runPythonScript(script, args);
 
     std::ifstream ifs(fileName);
     json jf;

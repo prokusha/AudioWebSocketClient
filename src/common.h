@@ -15,7 +15,7 @@ bool isYouTubeLink(const std::string& url);
 
 bool isYandexMusicLink(const std::string& url);
 
-json getAudioInfo(const std::string& payload);
+json getAudioInfo(bool thisId, const std::string& text);
 
 bool fileExist(const std::string& fileName);
 
