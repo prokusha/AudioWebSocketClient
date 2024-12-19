@@ -8,17 +8,20 @@ load_dotenv()
 
 client = Client(os.getenv('TOKEN_YA_M')).init()
 
-def get_audio_id(track_id, album_id):
+def get_audio_id(track_id, album_id, link):
     result = f"{track_id}:{album_id}"
     track = client.tracks(result)[0]
 
-    url = track.get_specific_download_info('mp3', 192).get_direct_link()
+    if (link):
+        url = track.get_specific_download_info('mp3', 192).get_direct_link()
+    else:
+        url = "none"
     title = track.title
     author = ", ".join([author.name for author in track.artists])
     duration = track.duration_ms/1000
     cover = track.cover_uri
 
-    data = {'title': title, 'author': author, 'url': url, 'duration': duration, 'cover': cover}
+    data = {'track_id': track_id, 'album_id': album_id, 'title': title, 'author': author, 'url': url, 'duration': duration, 'cover': cover}
 
     return data
 
@@ -27,7 +30,7 @@ def get_audio_url(url):
     album_id = parts[-3]
     track_id = parts[-1]
 
-    return get_audio_id(track_id, album_id)
+    return get_audio_id(track_id, album_id, False)
 
 
 def send_search_request_and_print_result(query):
@@ -50,7 +53,7 @@ def send_search_request_and_print_result(query):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('query', type=str, help='Ссылка/Поисковый запрос')
-    parser.add_argument('-t', "--type", choices=("url", "search", "id"), help="url - поиск по ссылке, search - поиск по запросу, id - поиск по id трека и альбома")
+    parser.add_argument('-t', "--type", choices=("url", "search", "id", "link"), help="url - поиск по ссылке, search - поиск по запросу, id - поиск по id трека и альбома, link - получение ссылки на аудио по id")
     #Пример команды python parser_ya-music.py -t url https://music.yandex.ru/album/17648600/track/89760037
 
     args = parser.parse_args()
@@ -61,7 +64,10 @@ if __name__ == "__main__":
         data = send_search_request_and_print_result(args.query)
     elif args.type == "id":
         tr, al = args.query.split(':')
-        data = get_audio_id(tr, al)
+        data = get_audio_id(tr, al, False)
+    elif args.type == "link":
+        tr, al = args.query.split(':')
+        data = get_audio_id(tr, al, True)
 
     with open('data.json', 'w') as file:
         json.dump(data, file)

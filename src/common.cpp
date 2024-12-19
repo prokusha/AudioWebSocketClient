@@ -32,7 +32,7 @@ bool isYandexMusicLink(const std::string& url) {
     return std::regex_match(url, yandexMusicRegex);
 }
 
-json getAudioInfo(bool thisId, const std::string& text) {
+json getAudioInfo(bool thisId, const std::string& text, bool getLink) {
     std::string fileName = "data.json";
     
     removeFile(fileName);
@@ -40,7 +40,9 @@ json getAudioInfo(bool thisId, const std::string& text) {
     std::string script = "scripts/parser_ya-music.py";
     std::string args = "";
 
-    if (thisId) {
+    if (getLink) {
+        args = "-t link " + text;
+    } else if (thisId) {
         args = "-t id " + text;
     } else if (isYandexMusicLink(text)) {
         args = "-t url " + text;

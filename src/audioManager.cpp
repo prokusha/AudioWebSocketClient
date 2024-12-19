@@ -24,12 +24,13 @@ void AudioManager::stop() {
     audio_duration = 0.0;
 }
 
-void AudioManager::addAudio(json audio_info) {
+void AudioManager::addAudio(bool thisId, const std::string& text) {
+    if (!m_audioOrder.addAudio(thisId, text)) {
+        return;
+    }
     if (current_audio.empty()) {
-        current_audio = audio_info;
+        current_audio = m_audioOrder.getNext();
         fillData();
-    } else {
-        m_audioOrder.addAudio(audio_info);
     }
 }
 

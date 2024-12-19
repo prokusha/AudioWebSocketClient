@@ -10,7 +10,7 @@ class AudioManager {
 public:
     void play();
     void stop();
-    void addAudio(json audio_info);
+    void addAudio(bool thisId, const std::string& text);
     bool playNext();
     bool isPlaying() const;
     bool isEnded() const;

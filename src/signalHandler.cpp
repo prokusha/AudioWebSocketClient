@@ -39,11 +39,7 @@ void signalEnded(AudioManager& audioManager, ClientManager& clientManager, serve
 }
 
 void signalAdd(bool thisId, const std::string& text, AudioManager& audioManager, ClientManager& clientManager, server& server) {
-    json audio_info = getAudioInfo(thisId, text);
-    if (audio_info.empty()) {
-        return;
-    }
-    audioManager.addAudio(audio_info);
+    audioManager.addAudio(thisId, text);
     if (!audioManager.isPlaying()) {
         clientManager.broadcast(json{
             audioManager.getCurrentAudio(), 
@@ -107,9 +103,10 @@ void signalSearch(websocketpp::connection_hdl hdl, const std::string& text, Clie
             pp["author"] = arts;
             pp["title"] = p["title"];
             jsres["results"].push_back(pp);
+            
+            clientManager.broadcast(hdl, jsres, server);
         }
 
-        clientManager.broadcast(hdl, jsres, server);
         curl_easy_cleanup(curl);
     }
 }

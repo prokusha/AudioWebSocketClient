@@ -5,12 +5,14 @@
 
 using json = nlohmann::json;
 
+const static int MAX_AUDIO = 3;
+
 class AudioOrder {
 public:
     AudioOrder() {
         list["type"] = "queue";
     }
-    void addAudio(json audioInfo);
+    bool addAudio(bool thisId, const std::string& text);
     bool isEmpty();
     json getNext();
     json getList();
